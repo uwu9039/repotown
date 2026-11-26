@@ -11,9 +11,21 @@
   <img alt="Renderer" src="https://img.shields.io/badge/Renderer-HTML5%20Canvas%20%2B%20WebAudio-4f8f54?style=flat-square" />
   <img alt="Bilingual" src="https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%20%2F%20English-c85a3a?style=flat-square" />
   <img alt="AI Built" src="https://img.shields.io/badge/Crafted%20By-100%25%20AI%20(Gemini4Neon)-3a281d?style=flat-square" />
+  <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-5b7890?style=flat-square" /></a>
 </p>
 
-[✨ Why RepoTown](#-why-repotown--项目缘起) • [🖼️ Live Previews](#️-preview--实机预览) • [🗺️ World Mapping](#️-how-code-becomes-a-town--仓库如何长成一座小镇) • [🎮 Gameplay](#-features--核心玩法与特性) • [🚀 Quick Start](#-quick-start--零构建快速启动)
+<p>
+  <a href="https://<your-username>.github.io/repotown/">
+    <img alt="Play Live Demo" src="https://img.shields.io/badge/%F0%9F%8E%AE%20Play%20Live%20Demo-GitHub%20Pages-c85a3a?style=for-the-badge" />
+  </a>
+</p>
+<sub>💡 <i>开启 GitHub Pages 后，将上方链接与下方示例中的 <code>&lt;your-username&gt;</code> 替换为你的 GitHub 用户名即可一键在线试玩。</i></sub>
+
+<br /><br />
+
+<img src="./docs/social-preview.png" alt="RepoTown Hero Banner" width="100%" />
+
+[✨ Why RepoTown](#-why-repotown--项目缘起) • [🖼️ Live Previews](#️-preview--实机预览) • [🗺️ World Mapping](#️-how-code-becomes-a-town--仓库如何长成一座小镇) • [🎮 Gameplay](#-features--核心玩法与特性) • [🚀 Quick Start](#-quick-start--零构建快速启动) • [❓ FAQ](#-faq--常见问题)
 
 </div>
 
@@ -147,6 +159,7 @@ repotown/
 ├── styles/
 │   └── theme.css               # 16-bit parchment / wood / pixel-bevel theme
 ├── docs/
+│   ├── social-preview.png      # 1280x640 GitHub Social Preview & Hero banner
 │   ├── preview-en.png          # Live English town preview screenshot
 │   └── preview-zh.png          # Live Chinese town preview screenshot
 └── src/
@@ -168,6 +181,39 @@ repotown/
         ├── hud.js              # HUD controller, Codex, Guided Tour & dialogs
         └── postcard.js         # Exportable PNG pixel souvenir generator
 ```
+
+---
+
+## ❓ FAQ · 常见问题
+
+<details>
+<summary><b>1. 遇到 GitHub API 60 次/小时限制怎么办？ / Hit the 60 req/hr unauthenticated GitHub limit?</b></summary>
+
+点击界面提示填入只读 GitHub Personal Access Token（仅保存于浏览器 `sessionStorage`，关闭标签页自动销毁），额度立刻提升至 `5000 req/hr`。另外，内置示例小镇与本地拖拽 `.md` 文件 **完全离线解析，不消耗任何 API 额度**。
+
+</details>
+
+<details>
+<summary><b>2. 小镇里有哪些容易错过的细节？ / Any hidden details worth trying?</b></summary>
+
+- **🪑 椅子真的可以坐**：镇中心广场木长椅与所有屋内椅子靠近后按 `E` / `Space` 或直接点击都能坐下休息。
+- **🌪 东郊风车 33% 神秘彩蛋**：走过东边小桥连推风车叶片 3 次可解锁彩蛋与 `+2` 许愿金币，点击「再来一阵狂风」每次均有 **33% 概率**刷出神秘彩蛋台词 `"676767"`。
+- **🧭 小地图传送**：任意建筑、村民黄点、史莱姆、喷泉与风车都可在右下角小地图直接点击传送；点 `+` 放大后还能拖动平移。
+
+</details>
+
+<details>
+<summary><b>3. 这真的是全 AI 生成的项目吗？ / Is this really 100% AI-built?</b></summary>
+
+是的！从 HTML5 像素精灵与四套季节色板程序化绘制、A* 自动寻路、WebAudio 8-bit 合成音效，到中英文双语与 UI 交互全部由 AI（Gemini4Neon 测试）完成，人类作者只负责实际试玩与反馈体验问题。
+
+</details>
+
+---
+
+## 📄 License · 开源协议
+
+Released under the [MIT License](./LICENSE).
 
 <div align="center">
 
