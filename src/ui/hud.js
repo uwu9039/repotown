@@ -19,6 +19,8 @@ import {
   THEME_LABELS,
   TOUR_STEPS_I18N,
   WINDMILL_QUOTES_I18N,
+  WINDMILL_RARE_QUOTE,
+  WINDMILL_RARE_CHANCE,
 } from "../i18n/i18n.js";
 
 const TOUR_DONE_KEY = "repotown_tour_done_v1";
@@ -1634,7 +1636,7 @@ export class HudController {
     });
   }
 
-  openWindmillEasterEgg(quoteIdx = -1) {
+  openWindmillEasterEgg(prevNormalIdx = -1) {
     const atlas = getSpriteAtlas(this.engine.themeKey);
     const lang = getLang();
     const isEn = lang === "en";
@@ -1658,7 +1660,10 @@ export class HudController {
         .replace(/\{buildings\}/g, String(bCount))
         .replace(/\{files\}/g, String(fCount))
     );
-    const pickedIdx = quoteIdx >= 0 ? quoteIdx % quotes.length : Math.floor(Math.random() * quotes.length);
+    const isRare676767 = Math.random() < WINDMILL_RARE_CHANCE;
+    const pickedNormalIdx =
+      prevNormalIdx >= 0 ? (prevNormalIdx + 1) % quotes.length : Math.floor(Math.random() * quotes.length);
+    const headlineText = isRare676767 ? WINDMILL_RARE_QUOTE : quotes[pickedNormalIdx];
 
     const bodyHtml = `
       <div class="fortune-card">
@@ -1666,7 +1671,7 @@ export class HudController {
           <span class="fortune-tier is-emerald">${isEn ? "Secret Egg · Windkeeper" : "隐藏彩蛋 · 东郊守风人"}</span>
           <span class="fortune-score">${firstUnlock ? (isEn ? "First Unlock: +2 Coins ✓" : "首次解锁奖励：+2 枚许愿金币 ✓") : (isEn ? `Gale Active · ${this.coins} Coins` : `风车狂风中 · 当前 ${this.coins} 枚金币`)}</span>
         </div>
-        <p class="fortune-headline">${escapeHtml(quotes[pickedIdx])}</p>
+        <p class="fortune-headline">${escapeHtml(headlineText)}</p>
         <div class="fortune-actions">
           <button id="btn-windmill-gust" class="btn btn-sm btn-accent" type="button">${isEn ? "🌪 Summon Another Gale" : "🌪 再来一阵狂风"}</button>
           <button id="btn-windmill-fountain" class="btn btn-sm btn-primary" type="button">${isEn ? "Go to Fountain" : "前往许愿喷泉"}</button>
@@ -1685,7 +1690,7 @@ export class HudController {
 
     document.getElementById("btn-windmill-gust")?.addEventListener("click", () => {
       this.engine.boostWindmill(6.0);
-      this.openWindmillEasterEgg((pickedIdx + 1) % quotes.length);
+      this.openWindmillEasterEgg(isRare676767 ? prevNormalIdx : pickedNormalIdx);
     });
     document.getElementById("btn-windmill-fountain")?.addEventListener("click", () => {
       this.closeDialog();

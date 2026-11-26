@@ -59,7 +59,8 @@ Paste any `owner/repo` (e.g. `facebook/react`, `vercel/next.js`) or drop a `.md`
 | **Git Contributors & Commits** | **Wandering Villagers (NPCs)** | Talk to recent committers to read commit messages/SHAs; click any yellow dot on the Minimap to teleport beside them |
 | **Open Issues / Markdown `- [ ]`** | **Outskirts Slimes** | Raid overdue TODOs! Choose **Casual Raid** (`+1 Wishing Coin` right away) or **Dev Raid** (verifies issue closure on GitHub) |
 | **Town Center Plaza** | **Wishing Fountain** | Toss `1 Wishing Coin` for a humorous Fortune Slip (`Grand Fortune [SSR]`, lucky house teleport, Dev Do/Skip advice) |
-| **East Stream Bridge** | **Windmill Easter Egg** | Spin the sails for pixel petal/leaf bursts, chime harmonics, and hidden town trivia |
+| **East Stream Bridge** | **Windmill Easter Egg** | Spin the sails for pixel petal/leaf bursts, chime harmonics, and hidden town trivia (incl. a 33% rare secret!) |
+| **Plaza Benches & Indoor Chairs** | **Sittable Seats · 椅子可以坐** | Yes — **椅子可以坐**! Walk up to any plaza bench or indoor chair and press `E` / `Space` (or click) to sit down and rest |
 | **README.md & Repo Meta** | **Town Mayor & Noticeboard** | Read repository overview and project README inside a collapsible parchment reader |
 
 ---
@@ -67,6 +68,7 @@ Paste any `owner/repo` (e.g. `facebook/react`, `vercel/next.js`) or drop a `.md`
 ## 🎮 Features · 核心玩法与特性
 
 - **🌸 4 Random Town Biomes · 4 种季节生态风貌**：每次生成或导入项目，小镇都会在 **翠绿牧歌镇 (Meadow Vale)**、**樱花温泉乡 (Sakura Springs)**、**金秋枫叶村 (Autumn Maples)**、**凛冬雪原港 (Winter Harbor)** 四套全手绘像素调色板与环境粒子中随机切换。
+- **🪑 Sittable Chairs & Benches · 椅子可以坐**：不只是装饰！广场木长椅和每栋屋内的椅子都可以真正坐下休息（靠近按 `E` / `Space` 或直接点击），移动即可自然起身。
 - **⚔️ Dual Slime Raid + Wishing Coin Economy · 双模式史莱姆讨伐 & 许愿金币循环**：讨伐郊外待办史莱姆可切换「⚔ 普通讨伐 / Casual Raid」（点入返回即胜利，立即掉落 `+1 许愿金币`）与「开发者讨伐 / Dev Raid」（真实校验 GitHub Issue 关闭状态），再去镇中心喷泉掷币抽今日代码运势。
 - **🧭 Zoomable & Draggable Interactive Minimap · 可缩放可拖拽小地图 & 传送光环**：支持 `1× ~ 3×` 视野缩放、窗口大小切换（小/中/大/折叠）、放大后拖拽平移，点击任意建筑、风车、村民或史莱姆即可伴随传送光环瞬移到达。
 - **🐾 Click-to-Move A* Pathfinding & Cozy Interiors · 自动寻路与室内空间**：支持 `WASD` / 方向键与点击地面 A* 自动绕障寻路；房屋内部配有墙画、盆栽、书架、宝箱、地毯与**可坐下休息的长椅/椅子**，以及书架旁守候的管理员 NPC。

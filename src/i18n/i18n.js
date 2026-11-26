@@ -198,6 +198,9 @@ export const FORTUNE_ENTRIES_EN = [
   },
 ];
 
+export const WINDMILL_RARE_QUOTE = "676767";
+export const WINDMILL_RARE_CHANCE = 0.33;
+
 export const WINDMILL_QUOTES_I18N = {
   zh: [
     "风车转满三圈！风铃带来小镇秘闻：「{town}」的 {buildings} 栋建筑与 {files} 份藏书，正随着这阵像素微风轻轻呼吸。",
