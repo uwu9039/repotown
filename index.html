@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RepoTown — 把任何 GitHub 仓库与 Markdown 变成可逛的 2D 像素 RPG 小镇</title>
+  <meta name="description" content="Turn any GitHub repository or Markdown document into an explorable 2D pixel RPG town." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles/theme.css?v=14" />
+</head>
+<body data-time="day">
+  <div id="app" class="app-shell">
+    <!-- Fullscreen Pixel RPG Stage -->
+    <canvas id="game-canvas" class="game-canvas" tabindex="0" aria-label="RepoTown 2D Pixel RPG World"></canvas>
+
+    <!-- Screen Transition Iris / Fade -->
+    <div id="transition-curtain" class="transition-curtain" aria-hidden="true"></div>
+
+    <!-- Drag & Drop Overlay -->
+    <div id="drop-overlay" class="drop-overlay" hidden>
+      <div class="drop-card">
+        <svg class="icon icon-xl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+          <path d="M14 2H6v20h12V6z" />
+          <path d="M14 2v4h4" />
+          <path d="M12 18v-6" />
+          <path d="m9 15 3-3 3 3" />
+        </svg>
+        <p class="drop-title" data-i18n="drop.title">松开即可将 Markdown 文档化为小镇</p>
+        <p class="drop-sub" data-i18n="drop.sub">支持 .md / .markdown / .txt，纯本地浏览器解析</p>
+      </div>
+    </div>
+
+    <!-- Top Slim Command Bar -->
+    <header class="hud-topbar" role="banner">
+      <div class="brand-group">
+        <button id="btn-home" class="brand-badge" type="button" title="回到镇中心广场" data-i18n-title="brand.homeTitle">
+          <svg class="brand-crest" viewBox="0 0 24 24" fill="none">
+            <path d="M3 11L12 3l9 8v9H3v-9z" fill="#c85a3a" stroke="#f5edd6" stroke-width="1.8"/>
+            <rect x="9" y="13" width="6" height="7" fill="#241a15" stroke="#d99b38" stroke-width="1.2"/>
+            <rect x="6" y="10" width="3" height="3" fill="#f5edd6"/>
+            <rect x="15" y="10" width="3" height="3" fill="#f5edd6"/>
+          </svg>
+          <span class="brand-name">RepoTown</span>
+        </button>
+
+        <div class="town-pill" id="town-status-pill" title="当前所在地点">
+          <span class="town-theme-badge" id="hud-theme-badge" title="随机小镇风貌">翠绿牧歌</span>
+          <span class="town-pill-title" id="hud-town-name" data-i18n="town.loading">加载中...</span>
+          <span class="town-pill-zone" id="hud-zone-name" data-i18n="town.plaza">镇中心广场</span>
+        </div>
+      </div>
+
+      <form id="repo-form" class="repo-form" autocomplete="off">
+        <label class="sr-only" for="repo-input" data-i18n="repo.label">GitHub 仓库地址</label>
+        <div class="input-wrap">
+          <svg class="icon input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/>
+          </svg>
+          <input
+            id="repo-input"
+            type="text"
+            placeholder="owner/repo 或粘贴 GitHub 链接..."
+            data-i18n-placeholder="repo.placeholder"
+            spellcheck="false"
+          />
+        </div>
+        <button id="btn-generate" class="btn btn-primary" type="submit" data-i18n="btn.generate">生成小镇</button>
+      </form>
+
+      <div class="toolbar-actions">
+        <div class="preset-group" role="group" aria-label="预设小镇">
+          <button class="btn btn-chip is-active" type="button" data-preset="react-town" data-i18n="preset.react">React 镇</button>
+          <button class="btn btn-chip" type="button" data-preset="deepseek-citadel" data-i18n="preset.deepseek">DeepSeek 城</button>
+          <button class="btn btn-chip" type="button" data-preset="guide-village" data-i18n="preset.guide">摸鱼指南.md</button>
+        </div>
+
+        <button id="btn-markdown" class="btn btn-secondary" type="button" title="粘贴或上传 Markdown 生成小镇" data-i18n-title="btn.markdownTitle">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6v20h12V6z"/>
+            <path d="M14 2v4h4"/>
+            <path d="M8 13h8M8 17h5"/>
+          </svg>
+          <span data-i18n="btn.markdown">粘贴 Markdown</span>
+        </button>
+
+        <button id="btn-time" class="btn btn-icon" type="button" title="切换昼夜光影 (白昼 / 黄昏 / 夜晚)" data-i18n-title="btn.timeTitle">
+          <svg id="icon-time" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+        </button>
+
+        <button id="btn-sfx" class="btn btn-icon" type="button" title="开关 8-bit 音效" data-i18n-title="btn.sfxTitle" aria-pressed="true">
+          <svg id="icon-sfx-on" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+          <svg id="icon-sfx-off" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden>
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <line x1="23" y1="9" x2="17" y2="15"/>
+            <line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        </button>
+
+        <button id="btn-lang" class="btn btn-secondary btn-lang" type="button" title="Switch Language / 切换中英文" data-i18n-title="btn.langTitle">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
+          </svg>
+          <span id="lang-btn-label">EN</span>
+        </button>
+
+        <button id="btn-codex" class="btn btn-secondary" type="button" title="冒险图鉴与收藏记录" data-i18n-title="btn.codexTitle">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <span><span data-i18n="btn.codex">图鉴</span> <strong id="codex-count">0</strong></span>
+        </button>
+
+        <button id="btn-help" class="btn btn-secondary" type="button" title="查看新手冒险指南" data-i18n-title="btn.helpTitle">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span data-i18n="btn.help">指南</span>
+        </button>
+
+        <button id="btn-share" class="btn btn-accent" type="button" title="生成明信片与分享链接" data-i18n-title="btn.shareTitle">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="5" width="18" height="14" rx="1"/>
+            <circle cx="8.5" cy="10.5" r="1.5"/>
+            <path d="m21 16-5-5-6 6-3-3-4 4"/>
+          </svg>
+          <span data-i18n="btn.share">明信片</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Status / Toast Banner -->
+    <div id="status-toast" class="status-toast" role="status" aria-live="polite" hidden></div>
+
+    <!-- Bottom-Left Controls Hint + Stats Strip -->
+    <aside class="hud-stats" aria-label="操作提示与小镇统计">
+      <div class="stats-row">
+        <span class="stat-chip"><strong id="stat-buildings">0</strong> <span data-i18n="stat.buildings">栋建筑</span></span>
+        <span class="stat-chip"><strong id="stat-files">0</strong> <span data-i18n="stat.files">份藏书</span></span>
+        <span class="stat-chip"><strong id="stat-villagers">0/0</strong> <span data-i18n="stat.villagers">位村民</span></span>
+        <span class="stat-chip"><strong id="stat-slimes">0</strong> <span data-i18n="stat.slimes">只史莱姆</span></span>
+        <span class="stat-chip stat-chip-coin" title="许愿金币：讨伐待办史莱姆 +1，可在许愿喷泉测运势" data-i18n-title="stat.coinsTitle"><svg class="coin-svg" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="#f0be53" stroke="#9e6517" stroke-width="1.5"/><circle cx="8" cy="8" r="4" fill="none" stroke="#fff0b8" stroke-width="1"/><path d="M8 5v6M6.5 6.8h3" stroke="#7a490c" stroke-width="1.3" stroke-linecap="square"/></svg><strong id="stat-coins">1</strong> <span data-i18n="stat.coins">枚金币</span></span>
+      </div>
+      <div class="controls-hint" data-i18n-html="controls.hint">
+        <kbd>WASD</kbd> / <kbd>方向键</kbd> 或 <strong>点击地面</strong> 移动 · <kbd>Shift</kbd> 疾跑 · <kbd>E</kbd>/<kbd>Space</kbd> 交互进屋 · <kbd>Tab</kbd> 切换指引 · <kbd>Esc</kbd> 退出
+      </div>
+    </aside>
+
+    <!-- Touch D-Pad for Mobile / Narrow Viewports -->
+    <div id="touch-controls" class="touch-controls" aria-label="触控方向键">
+      <div class="dpad-cross">
+        <button class="dpad-btn dpad-up" data-dir="up" type="button" aria-label="向上">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4 13 10H3Z" fill="currentColor"/></svg>
+        </button>
+        <button class="dpad-btn dpad-left" data-dir="left" type="button" aria-label="向左">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 8 10 3v10Z" fill="currentColor"/></svg>
+        </button>
+        <div class="dpad-hub" aria-hidden="true"><span></span></div>
+        <button class="dpad-btn dpad-right" data-dir="right" type="button" aria-label="向右">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12 8 6 3v10Z" fill="currentColor"/></svg>
+        </button>
+        <button class="dpad-btn dpad-down" data-dir="down" type="button" aria-label="向下">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 12 3 6h10Z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <button id="btn-touch-act" class="touch-act-btn" type="button" aria-label="交互或进屋">
+        <svg class="touch-act-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="square" aria-hidden="true">
+          <path d="M14.5 4.5 19.5 4.5 19.5 9.5 10.5 18.5 5.5 13.5Z"/>
+          <path d="M6.5 15 4 20l5-2.5"/>
+        </svg>
+        <span data-i18n="touch.act">交互</span>
+      </button>
+    </div>
+
+    <!-- Bottom-Right Interactive Minimap -->
+    <aside id="minimap-panel" class="minimap-panel size-md" aria-label="小镇缩略地图">
+      <div class="minimap-header">
+        <div class="minimap-top-row">
+          <span class="minimap-title" data-i18n="map.title">小镇地图</span>
+          <div class="minimap-controls">
+            <button id="btn-map-zoom-out" class="minimap-ctrl-btn" type="button" title="缩小地图视野">−</button>
+            <button id="btn-map-zoom-reset" class="minimap-ctrl-btn minimap-zoom-label" type="button" title="重置视野比例">1×</button>
+            <button id="btn-map-zoom-in" class="minimap-ctrl-btn" type="button" title="放大地图视野">+</button>
+            <button id="btn-minimap-size" class="minimap-ctrl-btn" type="button" title="切换小地图窗口大小 (中/大/小)">大</button>
+            <button id="btn-minimap-toggle" class="minimap-ctrl-btn" type="button" title="折叠 / 展开小地图" aria-expanded="true">▾</button>
+          </div>
+        </div>
+        <span id="minimap-sub" class="minimap-sub">点击传送</span>
+      </div>
+      <canvas id="minimap-canvas" class="minimap-canvas" width="460" height="340"></canvas>
+      <div class="minimap-legend">
+        <span><i class="dot dot-player"></i><em style="font-style:normal" data-i18n="legend.you">你</em></span>
+        <span><i class="dot dot-building"></i><em style="font-style:normal" data-i18n="legend.building">建筑</em></span>
+        <span><i class="dot dot-fountain"></i><em style="font-style:normal" data-i18n="legend.fountain">喷泉</em></span>
+        <span><i class="dot dot-villager"></i><em style="font-style:normal" data-i18n="legend.villager">村民</em></span>
+        <span><i class="dot dot-slime"></i><em style="font-style:normal" data-i18n="legend.slime">待办</em></span>
+      </div>
+    </aside>
+
+    <!-- Full-Screen Parchment Reader Dim Backdrop -->
+    <div id="reader-backdrop" class="reader-backdrop" hidden></div>
+
+    <!-- Bottom-Center RPG Dialogue & File Inspector -->
+    <section id="dialog-box" class="dialog-box" role="dialog" aria-modal="false" aria-labelledby="dialog-speaker" hidden>
+      <div class="dialog-portrait-col">
+        <canvas id="dialog-portrait" class="dialog-portrait" width="64" height="64"></canvas>
+        <span id="dialog-role-tag" class="dialog-role-tag">NPC</span>
+      </div>
+      <div class="dialog-main">
+        <div class="dialog-header">
+          <div>
+            <h2 id="dialog-speaker" class="dialog-speaker">镇长</h2>
+            <p id="dialog-meta" class="dialog-meta">README.md</p>
+          </div>
+          <div class="dialog-actions">
+            <a id="dialog-ext-link" class="btn btn-sm btn-secondary" href="#" target="_blank" rel="noopener noreferrer" data-i18n="dialog.extLink" hidden>在 GitHub 查看</a>
+            <button id="dialog-close" class="btn btn-sm btn-close" type="button" aria-label="关闭对话框 (Esc)" data-i18n="dialog.close">关闭 [Esc]</button>
+          </div>
+        </div>
+        <div id="dialog-body" class="dialog-body"></div>
+      </div>
+    </section>
+
+    <!-- Markdown Paste / Upload Modal -->
+    <div id="markdown-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="md-modal-title" hidden>
+      <div class="modal-panel">
+        <div class="modal-header">
+          <div>
+            <h2 id="md-modal-title" class="modal-title" data-i18n="md.title">Markdown 转 RPG 小镇</h2>
+            <p class="modal-sub" data-i18n="md.sub">一级标题为镇名，二级标题变房屋，代码块变宝箱，未完成待办 `- [ ]` 变郊外史莱姆。</p>
+          </div>
+          <button id="md-modal-close" class="btn btn-sm btn-close" type="button" data-i18n="btn.close">关闭</button>
+        </div>
+        <div class="modal-body">
+          <div class="md-upload-row">
+            <label class="btn btn-secondary file-label">
+              <input id="md-file-input" type="file" accept=".md,.markdown,.txt" hidden />
+              <span data-i18n="md.chooseFile">选择本地 .md 文件</span>
+            </label>
+            <button id="md-load-sample" class="btn btn-chip" type="button" data-i18n="md.loadSample">填入示例游记.md</button>
+          </div>
+          <textarea id="md-textarea" class="md-textarea" rows="12" placeholder="# 我的奇幻项目&#10;&#10;## 核心工坊&#10;这里存放核心代码...&#10;&#10;## 待办悬赏&#10;- [ ] 修复登录闪退&#10;- [x] 完成像素渲染"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button id="md-submit" class="btn btn-primary" type="button" data-i18n="md.submit">立即生成小镇</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GitHub Token Helper Modal (only opened if user hits rate limit or clicks token) -->
+    <div id="token-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="token-modal-title" hidden>
+      <div class="modal-panel modal-panel-sm">
+        <div class="modal-header">
+          <div>
+            <h2 id="token-modal-title" class="modal-title" data-i18n="token.title">GitHub API 额度受限</h2>
+            <p class="modal-sub" data-i18n="token.sub">未登录每小时限 60 次请求。填入只读 Personal Access Token（仅存当前浏览器会话）可立刻恢复读取。</p>
+          </div>
+          <button id="token-modal-close" class="btn btn-sm btn-close" type="button" data-i18n="btn.close">关闭</button>
+        </div>
+        <div class="modal-body">
+          <input id="github-token-input" class="token-input" type="password" placeholder="ghp_... / github_pat_..." />
+        </div>
+        <div class="modal-footer">
+          <button id="token-save-retry" class="btn btn-primary" type="button" data-i18n="token.save">保存并重试</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Postcard & Share Modal -->
+    <div id="share-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="share-modal-title" hidden>
+      <div class="modal-panel">
+        <div class="modal-header">
+          <div>
+            <h2 id="share-modal-title" class="modal-title" data-i18n="share.title">小镇明信片与分享门户</h2>
+            <p class="modal-sub" data-i18n="share.sub">保存全景像素明信片，或把直达传送门徽章贴进你的 GitHub README。</p>
+          </div>
+          <button id="share-modal-close" class="btn btn-sm btn-close" type="button" data-i18n="btn.close">关闭</button>
+        </div>
+        <div class="modal-body share-body">
+          <div class="postcard-preview-wrap">
+            <canvas id="postcard-canvas" class="postcard-canvas" width="960" height="580"></canvas>
+          </div>
+          <div class="share-links">
+            <div class="copy-row">
+              <label for="share-url-input" data-i18n="share.urlLabel">小镇直达链接</label>
+              <div class="copy-input-group">
+                <input id="share-url-input" type="text" readonly />
+                <button id="btn-copy-url" class="btn btn-secondary" type="button" data-i18n="share.copyUrl">复制链接</button>
+              </div>
+            </div>
+            <div class="copy-row">
+              <label for="share-badge-input" data-i18n="share.badgeLabel">README 徽章代码</label>
+              <div class="copy-input-group">
+                <input id="share-badge-input" type="text" readonly />
+                <button id="btn-copy-badge" class="btn btn-secondary" type="button" data-i18n="share.copyBadge">复制 Markdown</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-download-postcard" class="btn btn-primary" type="button" data-i18n="share.download">下载高清明信片 (.png)</button>
+        </div>
+      </div>
+    </div>
+    <!-- Interactive Hands-On RPG Guided Tour Card -->
+    <aside id="tour-card" class="tour-card" aria-label="新手互动引导任务" hidden>
+      <div class="tour-header">
+        <span class="tour-badge" id="tour-step-badge">新手向导 1/5</span>
+        <div class="tour-progress" aria-hidden="true"><div id="tour-progress-fill" class="tour-progress-fill"></div></div>
+        <button id="tour-close" class="tour-close-btn" type="button" title="结束新手引导" aria-label="关闭引导">×</button>
+      </div>
+      <h3 id="tour-title" class="tour-title">迈出探索第一步</h3>
+      <p id="tour-desc" class="tour-desc">按 WASD / 方向键，或直接点击草地让角色自动绕障行走。</p>
+      <div class="tour-actions">
+        <button id="tour-assist" class="btn btn-sm btn-accent" type="button" hidden>带我过去</button>
+        <button id="tour-skip" class="btn btn-sm btn-secondary" type="button">跳过此步</button>
+      </div>
+    </aside>
+
+    <!-- Adventure Codex (Collection & Progress) Modal -->
+    <div id="codex-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="codex-title" hidden>
+      <div class="modal-panel">
+        <div class="modal-header">
+          <div>
+            <h2 id="codex-title" class="modal-title" data-i18n="codex.title">冒险图鉴与探索进度</h2>
+            <p class="modal-sub" data-i18n="codex.sub">记录你在当前小镇探索过的建筑、交流过的村民、讨伐的待办与收藏代码。</p>
+          </div>
+          <button id="codex-close" class="btn btn-sm btn-close" type="button" data-i18n="btn.close">关闭</button>
+        </div>
+        <div id="codex-body" class="modal-body"></div>
+      </div>
+    </div>
+
+    <!-- Startup Language Chooser Modal (shown on every entry) -->
+    <div id="lang-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="lang-modal-title" hidden>
+      <div class="modal-panel lang-modal-panel">
+        <div class="modal-header">
+          <div>
+            <h2 id="lang-modal-title" class="modal-title">Welcome to RepoTown · 欢迎来到像素代码镇</h2>
+            <p class="modal-sub">Choose your adventure language / 选择你的冒险语言（可随时在右上角切换）</p>
+          </div>
+        </div>
+        <div class="modal-body">
+          <p class="lang-modal-intro">Turn any GitHub repo or Markdown doc into an interactive 2D pixel RPG town.</p>
+          <div class="lang-choice-grid">
+            <button id="btn-pick-zh" class="btn btn-accent lang-choice-btn" type="button">
+              <span class="lang-choice-title">简体中文</span>
+              <span class="lang-choice-sub">开启中文新手互动向导</span>
+            </button>
+            <button id="btn-pick-en" class="btn btn-primary lang-choice-btn" type="button">
+              <span class="lang-choice-title">English</span>
+              <span class="lang-choice-sub">Start Interactive RPG Tour</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RPG Battle Shutter Transition Overlay -->
+    <div id="battle-curtain" class="battle-curtain" hidden aria-hidden="true">
+      <div class="battle-shutter battle-shutter-top"></div>
+      <div class="battle-shutter battle-shutter-bottom"></div>
+      <div class="battle-flash"></div>
+      <div class="battle-emblem">
+        <svg class="battle-sword-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+          <path d="M14.5 3.5 20.5 3.5 20.5 9.5 11 19 5 13Z" fill="rgba(247,208,107,0.22)" />
+          <path d="M6.5 14.5 3 21l6.5-3.5" />
+          <path d="M9 11l4 4" />
+        </svg>
+        <span class="battle-caption" data-i18n="battle.caption">ENCOUNTER · 讨伐出击</span>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js?v=14"></script>
+</body>
+</html>
