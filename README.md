@@ -15,13 +15,13 @@
 </p>
 
 <p>
-  <a href="https://<your-username>.github.io/repotown/">
+  <a href="https://uwu9039.github.io/repotown/">
     <img alt="Play Live Demo" src="https://img.shields.io/badge/%F0%9F%8E%AE%20Play%20Live%20Demo-GitHub%20Pages-c85a3a?style=for-the-badge" />
   </a>
+  <a href="https://uwu9039.github.io/repotown/?repo=uwu9039/repotown">
+    <img alt="Walk Inside This Repo" src="https://img.shields.io/badge/%F0%9F%8F%98%EF%B8%8F%20Explore%20This%20Repo%20as%20a%20Town-d99b38?style=for-the-badge" />
+  </a>
 </p>
-<sub>💡 <i>开启 GitHub Pages 后，将上方链接与下方示例中的 <code>&lt;your-username&gt;</code> 替换为你的 GitHub 用户名即可一键在线试玩。</i></sub>
-
-<br /><br />
 
 <img src="./docs/social-preview.png" alt="RepoTown Hero Banner" width="100%" />
 
@@ -109,7 +109,7 @@ Because RepoTown uses zero-dependency ES Modules (`<script type="module">`), any
 
 ### Option 1 — Python (built-in)
 ```bash
-git clone https://github.com/<your-username>/repotown.git
+git clone https://github.com/uwu9039/repotown.git
 cd repotown
 python -m http.server 8765
 ```
@@ -131,13 +131,13 @@ Or open with the **Live Server** extension in VS Code / Cursor / Antigravity.
 Load any public GitHub repository straight from URL query parameters:
 
 ```text
-https://<your-pages-domain>/?repo=facebook/react
+https://uwu9039.github.io/repotown/?repo=facebook/react
 ```
 
 Embed a RepoTown portal badge right inside your own project's `README.md`:
 
 ```markdown
-[![Visit in RepoTown](https://img.shields.io/badge/Explore%20as-2D%20Pixel%20RPG%20Town-d99b38?style=for-the-badge)](https://<your-username>.github.io/repotown/?repo=<owner>/<repo>)
+[![Visit in RepoTown](https://img.shields.io/badge/Explore%20as-2D%20Pixel%20RPG%20Town-d99b38?style=for-the-badge)](https://uwu9039.github.io/repotown/?repo=<owner>/<repo>)
 ```
 
 ---
